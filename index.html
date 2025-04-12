@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Programming Language Lexer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    .code-container {
+      display: flex;
+      border: 1px solid #ccc;
+      height: 300px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    .line-numbers {
+      background: #f0f0f0;
+      color: #888;
+      padding: 10px 5px;
+      text-align: right;
+      user-select: none;
+      line-height: 1.5;
+      width: 40px;
+      overflow: hidden;
+      white-space: pre;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: auto;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+    }
+
+    pre {
+      background: #eee;
+      padding: 10px;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Programming Language Lexer</h1>
+
+  <div class="code-container">
+    <div class="line-numbers" id="lineNumbers">1</div>
+    <textarea id="codeInput" spellcheck="false" oninput="updateLineNumbers()" onscroll="syncScroll()" placeholder="Enter C/C++ code..."></textarea>
+  </div>
+
+  <button onclick="tokenizeCode()">Tokenize</button>
+  <pre id="output"></pre>
+
+  <script>
+    const textarea = document.getElementById('codeInput');
+    const lineNumbers = document.getElementById('lineNumbers');
+
+    function updateLineNumbers() {
+      const lines = textarea.value.split('\n').length;
+      lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+    }
+
+    function syncScroll() {
+      lineNumbers.scrollTop = textarea.scrollTop;
+    }
+
+    async function tokenizeCode() {
+      const code = textarea.value;
+      try {
+        const res = await fetch('/tokenize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+
+        const result = await res.json();
+        document.getElementById('output').textContent = JSON.stringify(result, null, 4);
+      } catch (err) {
+        document.getElementById('output').textContent = 'Error: ' + err.message;
+      }
+    }
+
+    window.onload = updateLineNumbers;
+  </script>
+</body>
+</html>
